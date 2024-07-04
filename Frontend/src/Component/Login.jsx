@@ -1,6 +1,8 @@
 import React from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form"
+import axios from "axios"
+import toast from "react-hot-toast";
 function Login() {
   var [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => {
@@ -11,7 +13,29 @@ function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const onSubmit = (data) => console.log(data);
+  const onSubmit =async (data) => {
+    const userInfo={
+      fullname : data.fullname,
+      email : data.email,
+      password : data.password
+    };
+    await axios.post("http://localhost:4001/user/login",userInfo).then((res)=>{
+      if(res.data){
+        // console.log(res.data)
+        toast.success('Login Successfully done');
+        document.getElementById("my_modal_3").close()
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000);
+      }
+      localStorage.setItem("Users",JSON.stringify(res.data.user));
+    }).catch((error)=>{
+      if(error.response){
+        return toast.error(error.response.data.message);
+      }
+      toast.error('Error:-',error.response.data.message);
+    })
+  };
   return (
     <>
       <dialog id="my_modal_3" className="modal">
@@ -48,8 +72,8 @@ function Login() {
                 >
                   <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
                 </svg>
-                <input type="text" className="grow" placeholder="Username" {...register("username", { required: true })} />
-                {errors.username && <span className="text-red-500 text-sm">This field is required</span>}
+                <input type="text" className="grow" placeholder="Username" {...register("fullname", { required: true })} />
+                {errors.fullname && <span className="text-red-500 text-sm">This field is required</span>}
                 <br />
               </label>
               <label className="input input-bordered flex items-center gap-2">
